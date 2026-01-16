@@ -16,7 +16,7 @@ LFRic Core provides the underlying infrastructure for the Momentum&reg; Atmosphe
 Please find information on getting started using the LFRic Core infrastructure 
 in the [documentation](https://metoffice.github.io/lfric_core/). If you are 
 looking for the LFRic Atmosphere model this can be found in the
-[LFRic Apps](https://github.com/MetOffice/lfric_apps) repository.
+[LFRic Apps](https://github.com/MetOffice/lfric_apps) repository. TEST
 
 ## Contributing Guidelines
 
