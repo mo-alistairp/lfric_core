@@ -329,7 +329,7 @@ contains
     end if
     self%vector_set=.true.
 
-    call real_to_real_x(rdef_field, self%vector(position))
+    call invoke( real_to_real_x(rdef_field, self%vector(position)) )
   end subroutine import_rdef_field
 
    ! Copies a field from the nominated position. The procedure a field has been

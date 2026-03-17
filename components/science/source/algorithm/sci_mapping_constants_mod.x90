@@ -750,7 +750,7 @@ contains
               weights_rtran, fine_w3_fs, coarse_mesh, fine_mesh                &
       )
 
-      call real_to_real_x(weights_rdef, weights_rtran)
+      call invoke( real_to_real_x(weights_rdef, weights_rtran) )
 
       if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
