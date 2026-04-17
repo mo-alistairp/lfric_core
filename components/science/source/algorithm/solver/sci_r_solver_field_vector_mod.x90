@@ -118,18 +118,18 @@ contains
   ! compute the norm of a field vector
   function norm_field_vector(self) result(normal)
 
+    use sci_psykal_light_mod, only: invoke_rdouble_X_innerproduct_X
+
     implicit none
     class(r_solver_field_vector_type), intent(in) :: self
     real(kind=r_def)    :: normal
     integer(kind=i_def) :: fctr, nfctr
     real(kind=r_def)    :: field_norm
     normal = 0.0_r_def
-    type(field_type)    :: tmp
 
     nfctr = size(self%vector)
     do fctr = 1, nfctr
-       call invoke(real_to_real_x(tmp, self%vector(fctr)), &
-                   X_innerproduct_X(field_norm, tmp))
+       call invoke_rdouble_X_innerproduct_X(field_norm, self%vector(fctr))
        normal=normal + field_norm
     end do
     normal = sqrt(normal)
@@ -138,40 +138,37 @@ contains
   ! compute the norm of a field in the vector
   function field_norm_field_vector(self, n) result(normal)
 
+    use sci_psykal_light_mod, only: invoke_rdouble_X_innerproduct_X
+
     implicit none
     class(r_solver_field_vector_type), intent(in) :: self
     integer(kind=i_def),      intent(in) :: n
     real(kind=r_def)    :: normal
-    type(field_type)    :: tmp
 
-    call invoke(real_to_real_x(tmp, self%vector(n)), &
-                X_innerproduct_X(normal, tmp))
+    call invoke_rdouble_X_innerproduct_X(normal, self%vector(n))
     normal = sqrt(normal)
   end function field_norm_field_vector
 
   ! compute the dot of inner product of a field vector
   function dot_field_vector(self, x) result(dot_prod)
 
+    use sci_psykal_light_mod, only: invoke_rdouble_X_innerproduct_Y
+
     implicit none
     class(r_solver_field_vector_type),    intent(in) :: self
     class(abstract_vector_type), intent(in) :: x
     real(kind=r_def)                        :: dot_prod
     real(kind=r_def)                        :: inner_prod_field
-    real(kind=r_def)                        :: tmp3_scalar
     integer(kind=i_def)                     :: fctr, nfctr
-    type(field_type)                        :: tmp1, tmp2
 
     select type(x)
     type is(r_solver_field_vector_type)
        dot_prod = 0.0_r_def
        nfctr = size(self%vector)
        do fctr = 1, nfctr
-          tmp3_scalar = 0.0_r_def
-          call invoke(real_to_real_x(tmp1, self%vector(fctr)), &
-                      real_to_real_x(tmp2, x%vector(fctr)), &
-                      X_innerproduct_Y(tmp3_scalar, tmp1, tmp2))
-
-          dot_prod = dot_prod + tmp3_scalar
+          inner_prod_field = 0.0_r_def
+          call invoke_rdouble_X_innerproduct_Y( inner_prod_field, self%vector(fctr), x%vector(fctr) )
+          dot_prod = dot_prod + inner_prod_field
        end do
     class default
        write(log_scratch_space,'(A)') &
