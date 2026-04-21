@@ -737,4 +737,77 @@ contains
      !
   end subroutine invoke_copy_field_64_64
 
+  !---------------------------------------------------------------------
+  ! This is a PSyKAl-lite implementation of a built-in that will be
+  ! implemented under PSyclone issue #3398. See that issue for further
+  ! details.
+  subroutine invoke_copy_field_halo(field_in, field_out)
+
+     use omp_lib,            only: omp_get_thread_num
+     use omp_lib,            only: omp_get_max_threads
+     use mesh_mod,           only: mesh_type
+     use field_type_mod,     only: field_type, &
+                                   field_proxy_type
+
+     implicit none
+
+     type(field_type), intent(in)    :: field_in
+     type(field_type), intent(inout) :: field_out
+
+     integer(kind=i_def)             :: df
+     integer(kind=i_def)             :: loop0_start, loop0_stop
+     integer(kind=i_def)             :: depth, clean_halo_depth
+     type(field_proxy_type)          :: field_in_proxy
+     type(field_proxy_type)          :: field_out_proxy
+     integer(kind=i_def)             :: max_halo_depth_mesh
+     type(mesh_type), pointer        :: mesh => null()
+     !
+     ! Initialise field and/or operator proxies
+     !
+     field_in_proxy = field_in%get_proxy()
+     field_out_proxy = field_out%get_proxy()
+     !
+     ! Create a mesh object
+     !
+     mesh => field_out_proxy%vspace%get_mesh()
+     max_halo_depth_mesh = mesh%get_halo_depth()
+     !
+     ! Find the depth of the last clean halo
+     !
+     do depth=0, field_in_proxy%vspace%get_field_proxy_halo_depth()-1
+       ! check if the next halo depth is dirty, if so return the clean depth
+       if (field_in_proxy%is_dirty(depth=depth+1)) exit
+     end do
+     clean_halo_depth = depth
+     !
+     ! Set-up all of the loop bounds
+     !
+     loop0_start = 1
+     if (clean_halo_depth > 0) then
+       ! only copy the clean halos
+       loop0_stop = field_out_proxy%vspace%get_last_dof_halo(clean_halo_depth)
+     else
+       ! if there are no clean halos copy only owned DoFs
+       loop0_stop = field_out_proxy%vspace%get_last_dof_owned()
+     end if
+     !
+     ! Call kernels and communication routines
+     !
+     !$omp parallel default(shared), private(df)
+     !$omp do schedule(static)
+     do df=loop0_start,loop0_stop
+       field_out_proxy%data(df) = field_in_proxy%data(df)
+     end do
+     !$omp end do
+     !$omp end parallel
+     !
+     ! Set halos dirty/clean for fields modified in the above loop
+     !
+     call field_out_proxy%set_dirty()
+     if (.not. field_in_proxy%is_dirty(depth=1)) then
+       call field_out_proxy%set_clean(1)
+     end if
+     !
+  end subroutine invoke_copy_field_halo
+
 end module sci_psykal_builtin_light_mod
