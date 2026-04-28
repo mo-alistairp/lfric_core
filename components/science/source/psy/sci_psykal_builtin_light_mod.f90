@@ -754,7 +754,7 @@ contains
 
      integer(kind=i_def)             :: df
      integer(kind=i_def)             :: loop0_start, loop0_stop
-     integer(kind=i_def)             :: clean_halo_depth
+     integer(kind=i_def)             :: depth, clean_halo_depth
      type(field_proxy_type)          :: field_in_proxy
      type(field_proxy_type)          :: field_out_proxy
      integer(kind=i_def)             :: max_halo_depth_mesh
@@ -772,7 +772,7 @@ contains
      ! TEMPORARY UNTIL get_clean_depth() is added
      ! Find the depth of the last clean halo
      !
-     do depth=0, field_in_proxy%vspace%get_field_proxy_halo_depth()-1
+     do depth=0, field_in_proxy%vspace%get_field_halo_depth()-1
        ! check if the next halo depth is dirty, if so return the clean depth
        if (field_in_proxy%is_dirty(depth=depth+1)) exit
      end do
