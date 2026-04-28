@@ -746,8 +746,6 @@ contains
      use omp_lib,            only: omp_get_thread_num
      use omp_lib,            only: omp_get_max_threads
      use mesh_mod,           only: mesh_type
-     use field_type_mod,     only: field_type, &
-                                   field_proxy_type
 
      implicit none
 
@@ -756,7 +754,7 @@ contains
 
      integer(kind=i_def)             :: df
      integer(kind=i_def)             :: loop0_start, loop0_stop
-     integer(kind=i_def)             :: depth, clean_halo_depth
+     integer(kind=i_def)             :: clean_halo_depth
      type(field_proxy_type)          :: field_in_proxy
      type(field_proxy_type)          :: field_out_proxy
      integer(kind=i_def)             :: max_halo_depth_mesh
@@ -771,7 +769,7 @@ contains
      !
      mesh => field_out_proxy%vspace%get_mesh()
      max_halo_depth_mesh = mesh%get_halo_depth()
-     !
+     ! TEMPORARY UNTIL get_clean_depth() is added
      ! Find the depth of the last clean halo
      !
      do depth=0, field_in_proxy%vspace%get_field_proxy_halo_depth()-1
@@ -779,9 +777,11 @@ contains
        if (field_in_proxy%is_dirty(depth=depth+1)) exit
      end do
      clean_halo_depth = depth
+
      !
      ! Set-up all of the loop bounds
      !
+     ! clean_halo_depth = field_in_proxy%vspace%get_clean_depth()
      loop0_start = 1
      if (clean_halo_depth > 0) then
        ! only copy the clean halos
@@ -801,13 +801,9 @@ contains
      !$omp end do
      !$omp end parallel
      !
-     ! Set halos dirty/clean for fields modified in the above loop
+     ! Set halos dirty for fields modified in the above loop
      !
      call field_out_proxy%set_dirty()
-     if (.not. field_in_proxy%is_dirty(depth=1)) then
-       call field_out_proxy%set_clean(1)
-     end if
-     !
   end subroutine invoke_copy_field_halo
 
 end module sci_psykal_builtin_light_mod
