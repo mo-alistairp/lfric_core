@@ -772,7 +772,7 @@ contains
      !
      ! Set-up all of the loop bounds
      !
-     clean_halo_depth = field_in_proxy%vspace%get_clean_depth()
+     clean_halo_depth = field_in_proxy%get_clean_depth()
      loop0_start = 1
      if (clean_halo_depth > 0) then
        ! only copy the clean halos
