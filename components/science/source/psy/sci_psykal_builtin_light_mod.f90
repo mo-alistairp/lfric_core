@@ -795,6 +795,9 @@ contains
      ! Set halos dirty for fields modified in the above loop
      !
      call field_out_proxy%set_dirty()
+     if (clean_halo_depth > 0) then
+       call field_out_proxy%set_clean(clean_halo_depth)
+     end if
   end subroutine invoke_copy_field_halo
 
 end module sci_psykal_builtin_light_mod
