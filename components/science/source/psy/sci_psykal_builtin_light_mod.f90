@@ -741,7 +741,7 @@ contains
   ! This is a PSyKAl-lite implementation of a built-in that will be
   ! implemented under PSyclone issue #3398. See that issue for further
   ! details.
-  subroutine invoke_copy_field_halo(field_in, field_out)
+  subroutine invoke_copy_field_halo(field_out, field_in)
 
      use omp_lib,            only: omp_get_thread_num
      use omp_lib,            only: omp_get_max_threads
