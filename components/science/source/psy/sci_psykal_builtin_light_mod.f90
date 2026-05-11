@@ -757,18 +757,11 @@ contains
      integer(kind=i_def)             :: clean_halo_depth
      type(field_proxy_type)          :: field_in_proxy
      type(field_proxy_type)          :: field_out_proxy
-     integer(kind=i_def)             :: max_halo_depth_mesh
-     type(mesh_type), pointer        :: mesh => null()
      !
      ! Initialise field and/or operator proxies
      !
      field_in_proxy = field_in%get_proxy()
      field_out_proxy = field_out%get_proxy()
-     !
-     ! Create a mesh object
-     !
-     mesh => field_out_proxy%vspace%get_mesh()
-     max_halo_depth_mesh = mesh%get_halo_depth()
      !
      ! Set-up all of the loop bounds
      !
